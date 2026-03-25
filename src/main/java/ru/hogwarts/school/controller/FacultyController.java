@@ -3,13 +3,12 @@ package ru.hogwarts.school.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("faculty")
+@RequestMapping("/faculty")
 public class FacultyController {
 
     private final FacultyService facultyService;
@@ -19,17 +18,17 @@ public class FacultyController {
     }
 
     @GetMapping("{id}")
-    public Faculty getStudentInfo(@PathVariable Long id) {
+    public Faculty getFacultyInfo(@PathVariable Long id) {
         return facultyService.findFaculty(id);
     }
 
     @PostMapping
-    public Faculty createStudent(@RequestBody Faculty faculty) {
+    public Faculty createFaculty(@RequestBody Faculty faculty) {
         return facultyService.createFaculty(faculty);
     }
 
     @PutMapping
-    public Faculty editStudent(@RequestBody Faculty faculty) {
+    public Faculty editFaculty(@RequestBody Faculty faculty) {
         return facultyService.editFaculty(faculty);
     }
 
@@ -48,4 +47,10 @@ public class FacultyController {
     public List<Faculty> allFaculties() {
         return facultyService.allFaculties();
     }
+
+    @GetMapping("filterByNameOrColor")
+    public List<Faculty> findByNameOrColor(@RequestParam(required = false) String name, @RequestParam(required = false) String color){
+        return facultyService.findByNameOfColorFaculties(name, color);
+    }
+
 }
