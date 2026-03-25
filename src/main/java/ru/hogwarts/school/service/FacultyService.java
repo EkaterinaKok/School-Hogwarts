@@ -1,48 +1,42 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.FacultyRepository;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class FacultyService {
-    private final HashMap<Long, Faculty> faculties = new HashMap<>();
-    private Long lastId = 0L;
+    private final FacultyRepository facultyRepository;
+
+    @Autowired
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
+    }
 
     public Faculty createFaculty(Faculty faculty) {
-        faculty.setId(++lastId);
-        faculties.put(lastId, faculty);
-        return faculty;
+        return facultyRepository.save(faculty);
     }
 
     public Faculty editFaculty(Faculty faculty) {
-        if (faculties.containsKey(faculty.getId())) {
-            faculties.put(faculty.getId(), faculty);
-            return faculty;
-        }
-        return null;
+        return facultyRepository.save(faculty);
     }
 
     public Faculty findFaculty(Long id) {
-        return faculties.get(id);
+        return facultyRepository.findById(id).orElseThrow(() -> new RuntimeException("Faculty not found with id: " + id));
     }
 
-    public Faculty deleteFaculty(Long id) {
-        return faculties.remove(id);
+    public void deleteFaculty(Long id) {
+        facultyRepository.deleteById(id);
     }
 
     public List<Faculty> colorFilter(String color) {
-        List<Faculty> foundColor = faculties.values().stream()
-                .filter(faculty -> faculty.getColor().contains(color))
-                .toList();
-        return foundColor;
+        return facultyRepository.findByColor(color);
     }
 
-    public List<Faculty> allFaculties(){
-        List<Faculty> all = faculties.values().stream().toList();
-        return all;
+    public List<Faculty> allFaculties() {
+        return facultyRepository.findAll();
     }
 }
