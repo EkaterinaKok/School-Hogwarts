@@ -48,4 +48,10 @@ public class FacultyController {
     public List<Faculty> allFaculties() {
         return facultyService.allFaculties();
     }
+
+    @GetMapping("filterByNameOrColor")
+    public List<Faculty> findByNameOrColor(@RequestParam(required = false) String name, @RequestParam(required = false) String color){
+        return facultyService.findByNameOfColorFaculties(name, color);
+    }
+
 }
