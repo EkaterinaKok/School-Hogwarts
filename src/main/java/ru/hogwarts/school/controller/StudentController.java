@@ -2,6 +2,7 @@ package ru.hogwarts.school.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
@@ -19,43 +20,43 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping("{id}")
+    @GetMapping("{id}") //поиск студента по id
     public Student getStudentInfo(@PathVariable Long id) {
         return studentService.findStudent(id);
     }
 
-    @GetMapping("ageFilter/{age}")
+    @GetMapping("ageFilter/{age}")//поиск студента по возрасту
     public List<Student> ageFilter(@PathVariable int age) {
         return studentService.ageFilter(age);
     }
 
-    @GetMapping
+    @GetMapping//вывод всех студентов
     public List<Student> allStudents() {
         return studentService.allStudents();
     }
 
-    @PostMapping
+    @PostMapping//создать студента
     public Student createStudent(@RequestBody Student student) {
         return studentService.createStudent(student);
     }
 
-    @PutMapping
+    @PutMapping//изменить студента
     public Student editStudent(@RequestBody Student student) {
         return studentService.editStudent(student);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("{id}")//удалить студента
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("filterByAge")
+    @GetMapping("filterByAge")//поиск студентов в определенном возрастном промежутке
     public List<Student> findByAgeBetweenStudent(@RequestParam("min") int min, @RequestParam("max") int max) {
         return studentService.findByAgeBetween(min, max);
     }
 
-    @GetMapping("/faculty/by-student/{studentId}")
+    @GetMapping("/faculty/by-student/{studentId}")//поиск факультета по id студента
     public ResponseEntity<Faculty> getFacultyByStudent(@PathVariable Long studentId) {
         try {
             Faculty faculty = studentService.getFacultyByStudentId(studentId);
@@ -65,7 +66,7 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/by-faculty/{facultyId}")
+    @GetMapping("/by-faculty/{facultyId}")//поиск студентов по id факультета
     public ResponseEntity<List<Student>> getStudentsByFaculty(@PathVariable Long facultyId) {
         List<Student> students = studentService.getStudentsByFacultyId(facultyId);
         if (students.isEmpty()) {
@@ -73,6 +74,5 @@ public class StudentController {
         }
         return ResponseEntity.ok(students);
     }
-
 
 }
