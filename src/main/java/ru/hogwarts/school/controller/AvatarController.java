@@ -1,6 +1,5 @@
 package ru.hogwarts.school.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,8 +11,6 @@ import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.service.AvatarService;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
