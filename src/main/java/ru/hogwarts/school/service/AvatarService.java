@@ -1,6 +1,9 @@
 package ru.hogwarts.school.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
-import ru.hogwarts.school.repository.StudentRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -19,7 +21,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -32,6 +33,7 @@ public class AvatarService {
 
     private final StudentService studentService;
     private final AvatarRepository avatarRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AvatarService.class);
 
     public AvatarService(StudentService studentService, AvatarRepository avatarRepository) {
         this.studentService = studentService;
@@ -39,27 +41,43 @@ public class AvatarService {
     }
 
     public void uploadCover(Long studentId, MultipartFile file) throws IOException {
-        Student student = studentService.findStudent(studentId);
-        Path filePath = Path.of(coversDir, studentId + "." + getExtension(file.getOriginalFilename()));
-        Files.createDirectories(filePath.getParent());
-        Files.deleteIfExists(filePath);
+        logger.info("Method uploadCover was invoked for student ID: {}", studentId);
+        try {
+            Student student = studentService.findStudent(studentId);
+            Path filePath = Path.of(coversDir, studentId + "." + getExtension(file.getOriginalFilename()));
+            Files.createDirectories(filePath.getParent());
+            Files.deleteIfExists(filePath);
 
-        try (InputStream is = file.getInputStream();
-             OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-             BufferedInputStream bis = new BufferedInputStream(is, 1024);
-             BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
-        ) {
-            bis.transferTo(bos);
+            try (InputStream is = file.getInputStream();
+                 OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
+                 BufferedInputStream bis = new BufferedInputStream(is, 1024);
+                 BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
+            ) {
+                bis.transferTo(bos);
+            }
+
+            Avatar avatar = findAvatar(studentId);
+            avatar.setStudent(student);
+            avatar.setFilePath(filePath.toString());
+            avatar.setMediaType(file.getContentType());
+            avatar.setData(generateImageData(filePath));
+            avatarRepository.save(avatar);
+
+            logger.debug("Successfully uploaded and processed cover for student ID: {}", studentId);
+        } catch (EntityNotFoundException e) {
+            logger.error("Student not found with ID: {}", studentId, e);
+            throw e;
+        } catch (IOException e) {
+            logger.error("IO error during cover upload for student ID {}: {}", studentId, e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error during cover upload for student ID {}: {}", studentId, e.getMessage(), e);
+            throw new RuntimeException("Failed to upload cover", e);
         }
-        Avatar avatar = findAvatar(studentId);
-        avatar.setStudent(student);
-        avatar.setFilePath(filePath.toString());
-        avatar.setMediaType(file.getContentType());
-        avatar.setData(generateImageData(filePath));
-        avatarRepository.save(avatar);
     }
 
     private byte[] generateImageData(Path filePath) throws IOException {
+        logger.info("Method generateImageData was invoked");
         try (InputStream is = Files.newInputStream(filePath);
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -104,10 +122,12 @@ public class AvatarService {
 
 
     public Avatar findAvatar(Long studentId) {
+        logger.info("Method findAvatar was invoked");
         return avatarRepository.findByStudentId(studentId).orElse(new Avatar());
     }
 
     private String getExtension(String fileName) {
+        logger.info("Method getExtension was invoked");
         int lastDotIndex = fileName.lastIndexOf(".");
         if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
             return "jpg"; // расширение по умолчанию
@@ -126,6 +146,7 @@ public class AvatarService {
     }
 
     public Page<Avatar> getAllAvatars(int page, int size) {
+        logger.info("Method getAllAvatars was invoked");
         Pageable pageable = PageRequest.of(page, size);
         return avatarRepository.findAll(pageable);
     }
