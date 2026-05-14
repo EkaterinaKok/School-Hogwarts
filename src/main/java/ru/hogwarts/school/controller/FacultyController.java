@@ -54,4 +54,23 @@ public class FacultyController {
         return facultyService.findByNameOfColorFaculties(name, color);
     }
 
+    @GetMapping(value = "/longName")
+    public String getTheLongestFacultyName() {
+        return facultyService.getTheLongestFacultyName();
+    }
+
+    @GetMapping(value = "/sumOfNumbers")
+    public Long findTheStream() {
+        return facultyService.findTheStream();
+    }
+
+    @GetMapping(value = "/sumOfNumbersOptimal")
+    public Long findTheStreamOptimal() {
+        return facultyService.findTheStreamOptimal();
+    }
+
+    @GetMapping(value = "/sumOfNumbersFastest")
+    public Long getSum() {
+        return facultyService.getSum();
+    }
 }

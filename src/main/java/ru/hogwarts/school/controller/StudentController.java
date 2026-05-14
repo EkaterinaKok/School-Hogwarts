@@ -7,6 +7,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -92,5 +93,14 @@ public class StudentController {
         return ResponseEntity.ok(lastFive);
     }
 
+    @GetMapping(value = "A")
+    public List<String> getStudentsNamesStartingWithA() {
+        return studentService.getStudentsNamesStartingWithA();
+    }
+
+    @GetMapping(value = "/ave")
+    public Double getAveAgeOfAllStudent() {
+        return studentService.getAveAgeOfAllStudents();
+    }
 
 }
