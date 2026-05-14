@@ -11,7 +11,9 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -132,6 +134,7 @@ public class StudentService {
         return studentRepository.countAllStudents();
     }
 
+    //старый метод для получения среднего возраста без стрима
     public double getAverageAge() {
         logger.info("Method getAverageAge was invoked");
         Double averageAge = studentRepository.findAverageAge();
@@ -146,6 +149,40 @@ public class StudentService {
             logger.error("Failed to retrieve last five students", e);
             throw e;
         }
+    }
+
+    public List<String> getStudentsNamesStartingWithA() {
+        logger.info("Fetching student names starting with 'A' (case‑insensitive), converting to uppercase and sorting");
+
+        return studentRepository.findAll()
+                .stream()
+                .filter(student -> student.getName() != null)
+                .map(student -> student.getName().toUpperCase())
+                .filter(name -> name.startsWith("A"))
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    //новый метод для получения среднего возраста с использованием стрима
+    public double getAveAgeOfAllStudents() {
+        logger.info("Method was called for calculating the average age of all students using stream");
+
+        Collection<Student> students = studentRepository.findAll();
+
+        if (students.isEmpty()) {
+            logger.warn("No students found in the database. Returning 0 for average age.");
+            return 0.0;
+        }
+
+        double averageAge = students
+                .stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0.0);
+
+        logger.debug("Calculated average age: {} for {} students", averageAge, students.size());
+
+        return averageAge;
     }
 
 }
