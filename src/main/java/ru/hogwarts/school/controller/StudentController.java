@@ -103,4 +103,14 @@ public class StudentController {
         return studentService.getAveAgeOfAllStudents();
     }
 
+    @GetMapping(value = "/print-parallel")
+    public String printStudentsParallel() {
+        return studentService.printStudentsParallel();
+    }
+
+    @GetMapping(value = "/print-synchronized")
+    public String printStudentSynchronizedParallel() {
+        return studentService.printStudentsSynchronizedParallel();
+    }
+
 }
