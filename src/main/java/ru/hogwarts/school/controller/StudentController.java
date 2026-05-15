@@ -7,7 +7,6 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -101,6 +100,16 @@ public class StudentController {
     @GetMapping(value = "/ave")
     public Double getAveAgeOfAllStudent() {
         return studentService.getAveAgeOfAllStudents();
+    }
+
+    @GetMapping(value = "/print-parallel")
+    public String printStudentsParallel() {
+        return studentService.printStudentsParallel();
+    }
+
+    @GetMapping(value = "/print-synchronized")
+    public String printStudentSynchronizedParallel() {
+        return studentService.printStudentsSynchronizedParallel();
     }
 
 }
